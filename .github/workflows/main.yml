@@ -4,7 +4,7 @@ name: main-worklfow
 env: 
 IMAGE_REPOSITORY: goadaneeu/foobar
 KUBECTL_VERSION: "1.14.10"
-KUSTOMIZE_VERSION: "3.5.4"
+KUSTOMIZE_VERSION: "3.5.4";
 
 # Configure kubectl.
 - name: Configure kubectl
