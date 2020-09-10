@@ -1,8 +1,19 @@
 # This is a basic workflow to help you get started with Actions.
 name: main-worklfow
 
-env: {IMAGE_REPOSITORY: goadaneeu/foobar}
+env: 
+IMAGE_REPOSITORY: goadaneeu/foobar
+KUBECTL_VERSION: "1.14.10"
+KUSTOMIZE_VERSION: "3.5.4"
 
+# Configure kubectl.
+- name: Configure kubectl
+  run: echo ${{ secrets.KUBECONFIG }} | base64 --decode > kubeconfig.yml
+  # Set up Kustomize.
+- name: Set up Kustomize
+  run: |-
+    curl -sfL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz | tar -xzf -
+    sudo mv kustomize /usr/local/bin/
 on:
   push:
     branches:
@@ -49,3 +60,21 @@ jobs:
       # Run unit tests.
       - name: Run unit tests
         run: go test -v ./...
+  # Deploy to Kubernetes.
+ deploy:
+  runs-on: ubuntu-latest
+  if: github.ref == 'refs/heads/master'
+  needs:
+    - run-tests
+    - build-and-release
+  steps:
+    # Check out source code.
+    - name: Check out source code
+      uses: actions/checkout@v2
+      
+   # Set up kubectl.
+   - name: Set up kubectl
+   run: |-
+    curl -sfLo kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+    chmod +x kubectl
+    sudo mv kubectl /usr/local/bin/   
